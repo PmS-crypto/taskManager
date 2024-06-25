@@ -1,26 +1,38 @@
 import React from 'react';
 import styled from 'styled-components';
 import { useDrop } from 'react-dnd';
-import TodoList from './TodoList';
+import { ItemTypes } from '../dndtypes';
+import TodoItem from './TodoItem';
 import { Todo } from '../types';
 
 interface KanbanColumnProps {
   title: string;
   todos: Todo[];
+  onDrop: (id: number, completed: boolean) => void;
   onComplete: (id: number, completed: boolean) => void;
   onDelete: (id: number) => void;
 }
 
-const KanbanColumn = ({ title, todos, onComplete, onDelete }: KanbanColumnProps) => {
-  const [, ref] = useDrop({
-    accept: 'TODO',
-    drop: () => ({ name: title }),
-  });
+const KanbanColumn = ({ title, todos, onDrop, onComplete, onDelete }: KanbanColumnProps) => {
+  const [, ref] = useDrop(() => ({
+    accept: ItemTypes.TODO,
+    drop: (item: { id: number }) => {
+      const completed = title === 'Complete';
+      onDrop(item.id, completed);
+    },
+  }));
 
   return (
     <Column ref={ref}>
       <h2>{title}</h2>
-      <TodoList todos={todos} onComplete={onComplete} onDelete={onDelete} />
+      {todos.map((todo) => (
+        <TodoItem
+          key={todo.id}
+          todo={todo}
+          onComplete={onComplete}
+          onDelete={onDelete}
+        />
+      ))}
     </Column>
   );
 };

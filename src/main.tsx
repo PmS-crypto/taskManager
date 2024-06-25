@@ -6,7 +6,7 @@ import App from './App';
 import { ThemeProvider } from './contexts/ThemeProvider';
 import { GlobalStyles } from './styles/globalStyles';
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+ReactDOM.render(
   <React.StrictMode>
     <DndProvider backend={HTML5Backend}>
       <ThemeProvider>
@@ -15,4 +15,5 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       </ThemeProvider>
     </DndProvider>
   </React.StrictMode>,
-)
+  document.getElementById('root')
+);
