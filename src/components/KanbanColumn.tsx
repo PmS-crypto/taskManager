@@ -1,8 +1,7 @@
 import React from 'react';
-import styled from 'styled-components';
 import { useDrop } from 'react-dnd';
-import { ItemTypes } from '../dndtypes';
 import TodoItem from './TodoItem';
+import { ItemTypes } from '../dndTypes';
 import { Todo } from '../types';
 
 interface KanbanColumnProps {
@@ -13,17 +12,32 @@ interface KanbanColumnProps {
   onDelete: (id: number) => void;
 }
 
-const KanbanColumn = ({ title, todos, onDrop, onComplete, onDelete }: KanbanColumnProps) => {
-  const [, ref] = useDrop(() => ({
+const KanbanColumn = ({
+  title,
+  todos,
+  onDrop,
+  onComplete,
+  onDelete,
+}: KanbanColumnProps) => {
+  const [{ isOver }, drop] = useDrop(() => ({
     accept: ItemTypes.TODO,
-    drop: (item: { id: number }) => {
-      const completed = title === 'Complete';
-      onDrop(item.id, completed);
-    },
+    drop: (item: { id: number }) => onDrop(item.id, title === 'Complete'),
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+    }),
   }));
 
   return (
-    <Column ref={ref}>
+    <div
+      ref={drop}
+      style={{
+        backgroundColor: isOver ? '#e0e0e0' : '#f0f0f0',
+        padding: '8px',
+        width: '300px',
+        minHeight: '400px',
+        borderRadius: '4px',
+      }}
+    >
       <h2>{title}</h2>
       {todos.map((todo) => (
         <TodoItem
@@ -33,16 +47,8 @@ const KanbanColumn = ({ title, todos, onDrop, onComplete, onDelete }: KanbanColu
           onDelete={onDelete}
         />
       ))}
-    </Column>
+    </div>
   );
 };
-
-const Column = styled.div`
-  flex: 1;
-  padding: 20px;
-  background: #e0e0e0;
-  border-radius: 5px;
-  margin: 0 10px;
-`;
 
 export default KanbanColumn;

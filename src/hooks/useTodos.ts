@@ -4,6 +4,7 @@ import { Todo } from '../types';
 
 export const useTodos = (userId: number) => {
   const [todos, setTodos] = useState<Todo[]>([]);
+  const [localTodos, setLocalTodos] = useState<Todo[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,7 +30,7 @@ export const useTodos = (userId: number) => {
         completed: false,
         userId,
       });
-      setTodos((prevTodos) => [...prevTodos, response.data]);
+      setLocalTodos((prevTodos) => [...prevTodos, response.data]);
     } catch (err) {
       setError('Failed to add todo');
     }
@@ -37,12 +38,22 @@ export const useTodos = (userId: number) => {
 
   const updateTodo = async (id: number, completed: boolean) => {
     try {
-      await editTodo(id, { completed });
-      setTodos((prevTodos) =>
-        prevTodos.map((todo) =>
-          todo.id === id ? { ...todo, completed } : todo
-        )
-      );
+      // Check if the todo is local or from the server
+      const isLocalTodo = localTodos.some(todo => todo.id === id);
+      if (isLocalTodo) {
+        setLocalTodos((prevTodos) =>
+          prevTodos.map((todo) =>
+            todo.id === id ? { ...todo, completed } : todo
+          )
+        );
+      } else {
+        await editTodo(id, { completed });
+        setTodos((prevTodos) =>
+          prevTodos.map((todo) =>
+            todo.id === id ? { ...todo, completed } : todo
+          )
+        );
+      }
     } catch (err) {
       setError('Failed to update todo');
     }
@@ -50,15 +61,23 @@ export const useTodos = (userId: number) => {
 
   const removeTodo = async (id: number) => {
     try {
-      await deleteTodo(id);
-      setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
+      // Check if the todo is local or from the server
+      const isLocalTodo = localTodos.some(todo => todo.id === id);
+      if (isLocalTodo) {
+        setLocalTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
+      } else {
+        await deleteTodo(id);
+        setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
+      }
     } catch (err) {
       setError('Failed to delete todo');
     }
   };
 
+  const allTodos = [...todos, ...localTodos];
+
   return {
-    todos,
+    todos: allTodos,
     loading,
     error,
     addNewTodo,

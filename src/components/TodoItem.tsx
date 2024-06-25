@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDrag } from 'react-dnd';
-import { ItemTypes } from '../dndtypes';
+import { ItemTypes } from '../dndTypes';
 import { Todo } from '../types';
 
 interface TodoItemProps {
@@ -18,23 +18,38 @@ const TodoItem = ({ todo, onComplete, onDelete }: TodoItemProps) => {
     }),
   }));
 
+  const handleCompleteClick = () => {
+    onComplete(todo.id, !todo.completed);
+  };
+
   return (
     <div
       ref={drag}
       style={{
         opacity: isDragging ? 0.5 : 1,
-        padding: '8px',
-        margin: '4px',
+        padding: '16px',
+        margin: '8px 0',
         backgroundColor: '#fff',
-        borderRadius: '4px',
+        borderRadius: '8px',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
         cursor: 'move',
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
-      <p>{todo.todo}</p>
-      <button onClick={() => onComplete(todo.id, !todo.completed)}>
-        {todo.completed ? 'Undo' : 'Complete'}
-      </button>
-      <button onClick={() => onDelete(todo.id)}>Delete</button>
+      <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+        <h4>{todo.todo}</h4>
+        <button onClick={handleCompleteClick} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+          {todo.completed ? 'Incomplete' : 'Complete'}
+        </button>
+      </div>
+      <p style={{ marginBottom: '8px' }}>{todo.description || ''}</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <span>{todo.date || '12th Jan'}</span>
+        <button onClick={() => onDelete(todo.id)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+          Delete
+        </button>
+      </div>
     </div>
   );
 };

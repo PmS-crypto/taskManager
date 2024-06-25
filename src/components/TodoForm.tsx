@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 
 interface TodoFormProps {
   onAdd: (todo: string) => void;
 }
 
 const TodoForm = ({ onAdd }: TodoFormProps) => {
-  const [newTodo, setNewTodo] = useState('');
+  const [newTodo, setNewTodo] = useState<string>('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,38 +16,19 @@ const TodoForm = ({ onAdd }: TodoFormProps) => {
   };
 
   return (
-    <Form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} style={{ padding: '20px' }}>
       <input
         type="text"
         value={newTodo}
         onChange={(e) => setNewTodo(e.target.value)}
-        placeholder="Add new todo"
+        placeholder="Add a new todo"
+        style={{ padding: '10px', fontSize: '16px' }}
       />
-      <button type="submit">Add</button>
-    </Form>
+      <button type="submit" style={{ padding: '10px', fontSize: '16px' }}>
+        Add Todo
+      </button>
+    </form>
   );
 };
-
-const Form = styled.form`
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-
-  input {
-    flex: 1;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-  }
-
-  button {
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-`;
 
 export default TodoForm;
