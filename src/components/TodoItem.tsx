@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDrag } from 'react-dnd';
-import { ItemTypes } from '../dndTypes';
+import { ItemTypes } from '../dndtypes';
 import { Todo } from '../types';
 
 interface TodoItemProps {
@@ -43,9 +43,9 @@ const TodoItem = ({ todo, onComplete, onDelete }: TodoItemProps) => {
           {todo.completed ? 'Incomplete' : 'Complete'}
         </button>
       </div>
-      <p style={{ marginBottom: '8px' }}>{todo.description || ''}</p>
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <span>{todo.date || '12th Jan'}</span>
+      {/* <p style={{ marginBottom: '8px' }}>{todo.description || ''}</p> */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        {/* <span>{todo.date || '12th Jan'}</span> */}
         <button onClick={() => onDelete(todo.id)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
           Delete
         </button>

@@ -1,6 +1,5 @@
-import React from 'react';
 import { useDrop } from 'react-dnd';
-import { ItemTypes } from '../dndTypes';
+import { ItemTypes } from '../dndtypes';
 import TodoItem from './TodoItem';
 import { Todo } from '../types';
 

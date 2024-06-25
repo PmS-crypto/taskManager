@@ -1,59 +1,85 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { getTodos, addTodo, editTodo, deleteTodo } from '../services/api';
 import { Todo } from '../types';
-
-const uniqueId = () => Math.floor(Math.random() * 100000);
 
 export const useTodos = (userId: number) => {
   const [todos, setTodos] = useState<Todo[]>([]);
+  const [localTodos, setLocalTodos] = useState<Todo[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchTodos = async () => {
+      setLoading(true);
       try {
-        const response = await axios.get(`https://dummyjson.com/todos/user/${userId}`);
+        const response = await getTodos(userId);
         setTodos(response.data.todos);
-      } catch (error) {
-        console.error('Failed to fetch todos:', error);
+        setLoading(false);
+      } catch (err) {
+        setError('Failed to fetch todos');
+        setLoading(false);
       }
     };
-
     fetchTodos();
   }, [userId]);
 
-  const addNewTodo = (title: string) => {
-    const newTodo: Todo = {
-      id: uniqueId(),
-      todo: title,
-      completed: false,
-      userId,
-    };
-    setTodos((prevTodos) => [...prevTodos, newTodo]);
+  const addNewTodo = async (todo: string) => {
+    try {
+      const response = await addTodo({
+        todo,
+        completed: false,
+        userId,
+      });
+      setLocalTodos((prevTodos) => [...prevTodos, response.data]);
+    } catch (err) {
+      setError('Failed to add todo');
+    }
   };
 
   const updateTodo = async (id: number, completed: boolean) => {
     try {
-      const todoToUpdate = todos.find(todo => todo.id === id);
-      if (todoToUpdate) {
-        todoToUpdate.completed = completed;
-        setTodos([...todos]);
-        await axios.put(`https://dummyjson.com/todos/${id}`, { completed });
+      // Check if the todo is local or from the server
+      const isLocalTodo = localTodos.some(todo => todo.id === id);
+      if (isLocalTodo) {
+        setLocalTodos((prevTodos) =>
+          prevTodos.map((todo) =>
+            todo.id === id ? { ...todo, completed } : todo
+          )
+        );
+      } else {
+        await editTodo(id, { completed });
+        setTodos((prevTodos) =>
+          prevTodos.map((todo) =>
+            todo.id === id ? { ...todo, completed } : todo
+          )
+        );
       }
-    } catch (error) {
-      console.error('Failed to update todo:', error);
+    } catch (err) {
+      setError('Failed to update todo');
     }
   };
 
   const removeTodo = async (id: number) => {
     try {
-      setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
-      await axios.delete(`https://dummyjson.com/todos/${id}`);
-    } catch (error) {
-      console.error('Failed to delete todo:', error);
+      // Check if the todo is local or from the server
+      const isLocalTodo = localTodos.some(todo => todo.id === id);
+      if (isLocalTodo) {
+        setLocalTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
+      } else {
+        await deleteTodo(id);
+        setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
+      }
+    } catch (err) {
+      setError('Failed to delete todo');
     }
   };
 
+  const allTodos = [...todos, ...localTodos];
+
   return {
-    todos,
+    todos: allTodos,
+    loading,
+    error,
     addNewTodo,
     updateTodo,
     removeTodo,
