@@ -2,10 +2,11 @@ import React from 'react';
 import styled from 'styled-components';
 import { useDrop } from 'react-dnd';
 import TodoList from './TodoList';
+import { Todo } from '../types';
 
 interface KanbanColumnProps {
   title: string;
-  todos: Array<{ id: number; todo: string; completed: boolean }>;
+  todos: Todo[];
   onComplete: (id: number, completed: boolean) => void;
   onDelete: (id: number) => void;
 }
